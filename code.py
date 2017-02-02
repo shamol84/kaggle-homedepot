@@ -1,3 +1,5 @@
+
+## import required python packages
 import time
 start_time = time.time()
 
@@ -22,6 +24,8 @@ import random
 random.seed(2016)
 import xgboost as xgb
 
+## read data from files
+
 df_train = pd.read_csv('../input/train.csv', encoding="ISO-8859-1")
 df_test = pd.read_csv('../input/test.csv', encoding="ISO-8859-1")
 df_pro_desc = pd.read_csv('../input/product_descriptions.csv')
@@ -33,9 +37,11 @@ df_all = pd.merge(df_all, df_pro_desc, how='left', on='product_uid')
 df_all = pd.merge(df_all, df_brand, how='left', on='product_uid')
 print("--- Files Loaded: %s minutes ---" % round(((time.time() - start_time)/60),2))
 
+## define stop words and strNum
 stop_w = ['for', 'xbi', 'and', 'in', 'th','on','sku','with','what','from','that','less','er','ing'] #'electr','paint','pipe','light','kitchen','wood','outdoor','door','bathroom'
 strNum = {'zero':0,'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,'eight':8,'nine':9}
 
+##stemmer function ##
 def str_stem(s): 
     if isinstance(s, str):
         s = re.sub(r"(\w)\.([A-Z])", r"\1 \2", s) #Split words with a.A
@@ -71,7 +77,7 @@ def str_stem(s):
         s = re.sub(r"([0-9]+)( *)(ounces|ounce|oz)\.?", r"\1oz. ", s)
         s = re.sub(r"([0-9]+)( *)(centimeters|cm)\.?", r"\1cm. ", s)
         s = re.sub(r"([0-9]+)( *)(milimeters|mm)\.?", r"\1mm. ", s)
-        s = s.replace("°"," degrees ")
+        s = s.replace("Â°"," degrees ")
         s = re.sub(r"([0-9]+)( *)(degrees|degree)\.?", r"\1deg. ", s)
         s = s.replace(" v "," volts ")
         s = re.sub(r"([0-9]+)( *)(volts|volt)\.?", r"\1volt. ", s)
@@ -99,6 +105,7 @@ def str_stem(s):
     else:
         return "null"
 
+##workd segregation function   ##
 def seg_words(str1, str2):
     str2 = str2.lower()
     str2 = re.sub("[^a-z0-9./]"," ", str2)
@@ -133,6 +140,7 @@ def segmentit(s, txt_arr, t):
             r.append(st[i:])
     return r
 
+## function for common word
 def str_common_word(str1, str2):
     words, cnt = str1.split(), 0
     for word in words:
@@ -146,6 +154,7 @@ def str_common_word(str1, str2):
                 cnt+=0.5
     return cnt
 
+## function for whole word
 def str_whole_word(str1, str2, i_):
     cnt = 0
     while i_ < len(str2):
@@ -157,6 +166,7 @@ def str_whole_word(str1, str2, i_):
             i_ += len(str1)
     return cnt
 
+##calculate mean squared error ##
 def fmean_squared_error(ground_truth, predictions):
     fmean_squared_error_ = mean_squared_error(ground_truth, predictions)**0.5
     return fmean_squared_error_
@@ -276,6 +286,7 @@ model = model_selection.GridSearchCV(estimator = clf,
                                      cv = 3, verbose = 1, scoring=RMSE)
 model.fit(train, y_train.values)
 
+##find best model parameters and CV score from grid search
 print("Best parameters found by grid search:")
 print(model.best_params_)
 print("Best CV score:")
@@ -284,7 +295,7 @@ print(model.best_score_ + 0.47003199274)
 
 y_pred = model.predict(test)
 
-
+## fixing xgb output
 for i in range(len(y_pred)):
     if y_pred[i]<1:
         y_pred[i] = 1
