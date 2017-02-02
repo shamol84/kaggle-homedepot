@@ -7,7 +7,7 @@
 
 ##### For more information: https://www.kaggle.com/c/home-depot-product-search-relevance/data
 
-Python Packages: numpy, pandas, xgboost,sklearn 
+Python Packages: numpy, pandas, xgboost,sklearn, nltk 
 
-script run: python xgb-12.py
+script run: python code-rf.py
 
